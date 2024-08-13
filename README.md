@@ -312,15 +312,14 @@ Authentication is handled using JWT tokens. Secure all endpoints except user sig
 
 ## Setup Instructions
 1. Clone the repository.
-2. Install dependencies using `pip install -r requirements.txt` or `bundle install` for Ruby on Rails.
-3. Set up the database using `python manage.py migrate` for Django or `rails db:migrate` for RoR.
-4. Start the server using `python manage.py runserver` for Django or `rails server` for RoR.
+2. Install dependencies using `pip install -r requirements.txt` 
+3. Set up the database using `python manage.py migrate` for Django
+4. Start the server using `python manage.py runserver` for Django
 5. Use an API client like Postman to interact with the API.
 
 ## Testing
 Automated tests can be run using the command:
 - Django: `python manage.py test`
-- RoR: `rails test`
 
 ## Conclusion
 This backend API is a foundational implementation of a commodity rental solution. It covers user management, commodity listing, bid placement, and acceptance, along with lifecycle management of commodities.
