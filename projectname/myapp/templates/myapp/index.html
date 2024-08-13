@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django API Test</title>
+</head>
+<body>
+    <h1>Django API Test</h1>
+
+    <h2>1. User Signup</h2>
+    <form id="signupForm">
+        <label for="type">Type (renter/lender):</label>
+        <input type="text" id="type" name="type" required><br><br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+        <label for="first_name">First Name:</label>
+        <input type="text" id="first_name" name="first_name" required><br><br>
+        <label for="last_name">Last Name:</label>
+        <input type="text" id="last_name" name="last_name" required><br><br>
+        <button type="submit">Signup</button>
+    </form>
+    <pre id="signupResponse"></pre>
+
+    <h2>2. List Commodity</h2>
+    <form id="listCommodityForm">
+        <label for="item_name">Item Name:</label>
+        <input type="text" id="item_name" name="item_name" required><br><br>
+        <label for="item_description">Item Description:</label>
+        <input type="text" id="item_description" name="item_description" required><br><br>
+        <label for="quote_price_per_month">Quote Price per Month:</label>
+        <input type="number" step="0.01" id="quote_price_per_month" name="quote_price_per_month" required><br><br>
+        <label for="item_category">Item Category:</label>
+        <input type="text" id="item_category" name="item_category" required><br><br>
+        <button type="submit">List Commodity</button>
+    </form>
+    <pre id="listCommodityResponse"></pre>
+
+    <h2>3. Get Commodity Bids</h2>
+    <form id="getCommodityBidsForm">
+        <label for="commodity_id_bids">Commodity ID:</label>
+        <input type="number" id="commodity_id_bids" name="commodity_id_bids" required><br><br>
+        <button type="submit">Get Bids</button>
+    </form>
+    <pre id="getCommodityBidsResponse"></pre>
+
+    <h2>4. Accept Bid</h2>
+    <form id="acceptBidForm">
+        <label for="commodity_id_accept">Commodity ID:</label>
+        <input type="number" id="commodity_id_accept" name="commodity_id_accept" required><br><br>
+        <label for="bid_id_accept">Bid ID:</label>
+        <input type="number" id="bid_id_accept" name="bid_id_accept" required><br><br>
+        <button type="submit">Accept Bid</button>
+    </form>
+    <pre id="acceptBidResponse"></pre>
+
+    <h2>5. Get User Commodities</h2>
+    <form id="getUserCommoditiesForm">
+        <button type="submit">Get Commodities</button>
+    </form>
+    <pre id="getUserCommoditiesResponse"></pre>
+
+    <h2>6. Token Authentication</h2>
+    <form id="tokenForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        <button type="submit">Get Token</button>
+    </form>
+    <pre id="tokenResponse"></pre>
+
+    <script>
+        const tokenForm = document.getElementById('tokenForm');
+        const signupForm = document.getElementById('signupForm');
+        const listCommodityForm = document.getElementById('listCommodityForm');
+        const getCommodityBidsForm = document.getElementById('getCommodityBidsForm');
+        const acceptBidForm = document.getElementById('acceptBidForm');
+        const getUserCommoditiesForm = document.getElementById('getUserCommoditiesForm');
+        let token = '';
+
+        // Fetch Token
+        tokenForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(tokenForm);
+            fetch('/api/token/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: formData.get('username'),
+                    password: formData.get('password')
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                token = data.access;
+                document.getElementById('tokenResponse').textContent = JSON.stringify(data, null, 2);
+            });
+        });
+
+        // User Signup
+        signupForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(signupForm);
+            fetch('/api/signup/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    type: formData.get('type'),
+                    email: formData.get('email'),
+                    first_name: formData.get('first_name'),
+                    last_name: formData.get('last_name'),
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('signupResponse').textContent = JSON.stringify(data, null, 2);
+            });
+        });
+
+        // List Commodity
+        listCommodityForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(listCommodityForm);
+            fetch('/api/commodity/list/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    item_name: formData.get('item_name'),
+                    item_description: formData.get('item_description'),
+                    quote_price_per_month: formData.get('quote_price_per_month'),
+                    item_category: formData.get('item_category'),
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('listCommodityResponse').textContent = JSON.stringify(data, null, 2);
+            });
+        });
+
+        // Get Commodity Bids
+        getCommodityBidsForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(getCommodityBidsForm);
+            fetch(`/api/commodity/${formData.get('commodity_id_bids')}/bids/`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('getCommodityBidsResponse').textContent = JSON.stringify(data, null, 2);
+            });
+        });
+
+        // Accept Bid
+        acceptBidForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(acceptBidForm);
+            fetch(`/api/commodity/${formData.get('commodity_id_accept')}/accept-bid/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    bid_id: formData.get('bid_id_accept')
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('acceptBidResponse').textContent = JSON.stringify(data, null, 2);
+            });
+        });
+
+        // Get User Commodities
+        getUserCommoditiesForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            fetch(`/api/commodity/my-commodities/`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('getUserCommoditiesResponse').textContent = JSON.stringify(data, null, 2);
+            });
+        });
+    </script>
+</body>
+</html>
